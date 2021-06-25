@@ -99,6 +99,7 @@ The word “suspendisse” contains on pages number 2 and 3.
 
 ```{r}
 filename <- "Eastport_Assessor fy_2020_commitment_book.pdf"
+file_url <- "https://www.eastport-me.gov/sites/g/files/vyhlif536/f/pages/fy_2020_commitment_book.pdf"
 ```
 
 
