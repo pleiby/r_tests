@@ -1,0 +1,166 @@
+---
+title: "Test Read PDF"
+author: "Paul Leiby"
+date: "6/25/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Extract text from pdf in R and word Detection
+---------------------------------------------
+
+by [finnstats, Posted on June 15, 2021](https://finnstats.com/index.php/2021/06/15/extract-text-from-pdf-in-r-and-word-detection/)
+
+Extract text from pdf in R, first we need to install pdftools package from cran.
+
+Let’s install the pdftools package from cran.
+
+```{r}
+# install.packages("pdftools")
+```
+
+Load the package
+
+```{r}
+library("pdftools")
+```
+
+The pdf file needs to save in local directory or get it from online. Here we are extracting one sample document from online.
+
+Store the link in pdf_file variable.
+
+```{r}
+pdf_file <- "https://file-examples-com.github.io/uploads/2017/10/file-sample_150kB.pdf"
+```
+
+
+Let’s download the demo pdf file into the local directory
+
+```{r}
+download.file(pdf_file, destfile = "sample.pdf", mode = "wb")
+```
+
+`pdf_text()` function, which returns a character vector of length equal to the number of pages in the file.
+
+#### Extract text from pdf in R
+
+Extract the text from all pages.
+
+```{r}
+pdf_text <- pdftools::pdf_text("sample.pdf")
+```
+
+Suppose if you want to display second page information then use below code,
+
+```{r}
+cat(pdf_text[[2]])
+```
+
+Displayed only a few text here
+
+    In non mauris justo. Duis vehicula mi vel mi pretium, a viverra erat efficitur. Cras aliquam
+    est ac eros varius, id iaculis dui auctor. Duis pretium neque ligula, et pulvinar mi placerat
+    et. Nulla nec nunc sit amet nunc posuere vestibulum. Ut id neque eget tortor mattis
+    tristique. Donec ante est, blandit sit amet tristique vel, lacinia pulvinar arcu. Pellentesque
+    scelerisque fermentum erat, id posuere justo pulvinar ut. Cras id eros sed enim aliquam
+    lobortis. Sed lobortis nisl ut eros efficitur tincidunt. Cras justo mi, porttitor quis mattis vel, ultricies ut purus. Ut facilisis et lacus eu cursus.
+
+To extract a particular word from these pages, unlist the data and convert it into lower case letters
+
+```{r}
+str(pdf_text)
+```
+
+```{r}
+pdf_text <- unlist(pdf_text)
+pdf_text <- tolower(pdf_text)
+```
+
+Suppose if we want to extract the page number details for the word contains “Suspendisse“
+
+```{r}
+library(stringr)
+
+res <- data.frame(str_detect(pdf_text, "suspendisse"))
+colnames(res) <- "Result"
+res <- subset(res, res$Result == TRUE)
+row.names(res)
+```
+
+Output
+
+    1] "2" "3"
+
+The word “suspendisse” contains on pages number 2 and 3.
+
+
+```{r}
+filename <- "Eastport_Assessor fy_2020_commitment_book.pdf"
+```
+
+
+```{r}
+pdf_text <- pdftools::pdf_text(filename)
+str(pdf_text)
+```
+
+```{r}
+cat(pdf_text[1])
+```
+
+Processing
+----------
+
+- Add page numbers (confirm they can be read from end of line 1 on each page)
+- Strip header 3 lines from each page (confirming content, reading page number and headings)
+
+        Eastport                       Real Estate Tax Commitment Book - 26.200                            08/06/2019
+        12:20 PM                                     FY20 REAL ESTATE COMMITMENT                          Page      1
+        "^Account Name & Address                        Land     Building    Exemption       Assessment            Tax"
+- Strip 3 lines from end of each page:
+    - (headings "^[ ]+Land           Building             Exempt         Total               Tax"
+    - "^Page Totals;"
+    - "^Subtotals:" | "^Final Totals:"
+- Strip Final Totals from last page
+
+- Process page by page
+- Break each page into Assessment records
+    - last 3-4 lines are Address, Lot number and record pages - date
+- Strip of Page Totals
+
+Analysis
+-----------
+- Compare valuation of land across records
+- COmpare valuation of land w/o Buildings
+- Compare valuation of land in proximity
+
+- Compare valuations to Redfin or Zillow?
+
+
+#### Last Page
+
+```{r}
+length(pdf_text)
+cat(pdf_text[length(pdf_text)])
+```
+
+- Note "Acres" and it value is usually on 2nd line of record, under "Land" column, but not if name is > certain length.
+- may be able to use fixed-width for each field, but spacing may not be exactly preserved.
+- note pdf read does an amazingly good job of retaining leading white space and internal white space on line
+    - it also includes blank lines as "\n"
+    - but it drops trailing white space on each line.
+
+Example of a line starting with 
+```{r}
+str_detect(pdf_text, "\n    1")
+```
+
+#### Raw content of a page:
+
+```{r}
+pdf_text[1]
+```
+
