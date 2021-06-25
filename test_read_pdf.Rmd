@@ -99,9 +99,32 @@ The word “suspendisse” contains on pages number 2 and 3.
 
 ```{r}
 filename <- "Eastport_Assessor fy_2020_commitment_book.pdf"
-file_url <- "https://www.eastport-me.gov/sites/g/files/vyhlif536/f/pages/fy_2020_commitment_book.pdf"
+
+commitmentbook_2020_url <- "https://www.eastport-me.gov/sites/g/files/vyhlif536/f/pages/fy_2020_commitment_book.pdf"
+commitmentbook_2021_url <- "https://www.eastport-me.gov/sites/g/files/vyhlif536/f/uploads/fy21_real_estate_commitment_book_8-05-2020.pdf"
+commitmentbook_2021_url <- "https://www.eastport-me.gov/department-assessing/files/fy-2019-tax-commitment-book"
+"https://www.eastport-me.gov/sites/g/files/vyhlif536/f/uploads/fy19_real_estate_commitment_book.pdf"
+
 ```
 
+
+#### [Eastport Municipal Tax Rate](https://www.eastport-me.gov/department-assessing/pages/municipal-tax-rate)
+
+Taxes:
+
+Real Estate and Personal Property. The assessment date for the State of Maine is April 1st of each year. Any changes in ownership after that date will be made after commitment in July or August.  Effort will be made to mail a copy of the tax bill to the new property owner as well.  Generally, the City Council approves the annual budget in June/July and tax bills are issued by early August.  Please read the "Taxpayer Notice" on the bill to avoid any possible confusion.
+
+FISCAL YEAR: July 1st-June 30th
+
+ASSESSMENT: 97%
+
+FY 2015 TAX RATE: $26.00
+
+TAXES DUE: October 31, 2019
+
+INTEREST: 7.00% as of November 2, 2020 (rate set annually)
+
+#### [Eastport Tax Maps](https://www.eastport-me.gov/sites/g/files/vyhlif536/f/uploads/city_of_eastport_tax_maps_october_2016.pdf)
 
 ```{r}
 pdf_text <- pdftools::pdf_text(filename)
