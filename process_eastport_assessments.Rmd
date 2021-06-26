@@ -12,90 +12,15 @@ knitr::opts_chunk$set(echo = TRUE)
 Extract text from pdf in R and word Detection
 ---------------------------------------------
 
-by [finnstats, Posted on June 15, 2021](https://finnstats.com/index.php/2021/06/15/extract-text-from-pdf-in-r-and-word-detection/)
-
-Extract text from pdf in R, first we need to install pdftools package from cran.
-
-Let’s install the pdftools package from cran.
-
 ```{r}
 # install.packages("pdftools")
 ```
 
-Load the package
-
-```{r}
-library("pdftools")
-```
-
-The pdf file needs to save in local directory or get it from online. Here we are extracting one sample document from online.
-
-Store the link in pdf_file variable.
-
-```{r}
-pdf_file <- "https://file-examples-com.github.io/uploads/2017/10/file-sample_150kB.pdf"
-```
-
-
-Let’s download the demo pdf file into the local directory
-
-```{r}
-download.file(pdf_file, destfile = "sample.pdf", mode = "wb")
-```
-
-`pdf_text()` function, which returns a character vector of length equal to the number of pages in the file.
-
-#### Extract text from pdf in R
-
-Extract the text from all pages.
-
-```{r}
-pdf_text <- pdftools::pdf_text("sample.pdf")
-```
-
-Suppose if you want to display second page information then use below code,
-
-```{r}
-cat(pdf_text[[2]])
-```
-
-Displayed only a few text here
-
-    In non mauris justo. Duis vehicula mi vel mi pretium, a viverra erat efficitur. Cras aliquam
-    est ac eros varius, id iaculis dui auctor. Duis pretium neque ligula, et pulvinar mi placerat
-    et. Nulla nec nunc sit amet nunc posuere vestibulum. Ut id neque eget tortor mattis
-    tristique. Donec ante est, blandit sit amet tristique vel, lacinia pulvinar arcu. Pellentesque
-    scelerisque fermentum erat, id posuere justo pulvinar ut. Cras id eros sed enim aliquam
-    lobortis. Sed lobortis nisl ut eros efficitur tincidunt. Cras justo mi, porttitor quis mattis vel, ultricies ut purus. Ut facilisis et lacus eu cursus.
-
-To extract a particular word from these pages, unlist the data and convert it into lower case letters
-
-```{r}
-str(pdf_text)
-```
-
-```{r}
-pdf_text <- unlist(pdf_text)
-pdf_text <- tolower(pdf_text)
-```
-
-Suppose if we want to extract the page number details for the word contains “Suspendisse“
-
-```{r}
+```{r loadLibrary}
+library(pdftools)
 library(stringr)
-
-res <- data.frame(str_detect(pdf_text, "suspendisse"))
-colnames(res) <- "Result"
-res <- subset(res, res$Result == TRUE)
-row.names(res)
+library(tidyverse)
 ```
-
-Output
-
-    1] "2" "3"
-
-The word “suspendisse” contains on pages number 2 and 3.
-
 
 ```{r}
 filename <- "Eastport_Assessor fy_2020_commitment_book.pdf"
@@ -103,7 +28,6 @@ filename <- "Eastport_Assessor fy_2020_commitment_book.pdf"
 commitmentbook_2020_url <- "https://www.eastport-me.gov/sites/g/files/vyhlif536/f/pages/fy_2020_commitment_book.pdf"
 commitmentbook_2021_url <- "https://www.eastport-me.gov/sites/g/files/vyhlif536/f/uploads/fy21_real_estate_commitment_book_8-05-2020.pdf"
 commitmentbook_2021_url <- "https://www.eastport-me.gov/department-assessing/files/fy-2019-tax-commitment-book"
-"https://www.eastport-me.gov/sites/g/files/vyhlif536/f/uploads/fy19_real_estate_commitment_book.pdf"
 
 ```
 
@@ -126,13 +50,62 @@ INTEREST: 7.00% as of November 2, 2020 (rate set annually)
 
 #### [Eastport Tax Maps](https://www.eastport-me.gov/sites/g/files/vyhlif536/f/uploads/city_of_eastport_tax_maps_october_2016.pdf)
 
+
+
+```{r}
+file_downloaded = TRUE
+
+if (!file_downloaded) {
+    download.file(commitmentbook_2020_url, destfile = filename, mode = "wb")
+    file_downloaded = TRUE
+}
+```
+
+`pdf_text()` function, which returns a character vector of length equal to the number of pages in the file.
+
+#### Extract text from pdf in R
+
+Extract the text from all pages.
+
+
 ```{r}
 pdf_text <- pdftools::pdf_text(filename)
 str(pdf_text)
 ```
 
+Display of first page
+
 ```{r}
 cat(pdf_text[1])
+```
+
+```
+
+Suppose if you want to display second page information then use below code,
+
+```{r}
+cat(pdf_text[[2]])
+```
+
+
+To extract a particular word from these pages, unlist the data and convert it into lower case letters
+
+```{r}
+str(pdf_text)
+```
+
+```{r}
+pdf_text <- unlist(pdf_text)
+pdf_text <- tolower(pdf_text)
+```
+
+Suppose if we want to extract the page number details for the word contains “Suspendisse“
+
+```{r}
+res <- data.frame(str_detect(pdf_text, "suspendisse"))
+colnames(res) <- "Result"
+res <- subset(res, res$Result == TRUE)
+row.names(res)
 ```
 
 Processing
