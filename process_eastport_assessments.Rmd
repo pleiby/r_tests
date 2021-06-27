@@ -22,15 +22,6 @@ library(stringr)
 library(tidyverse)
 ```
 
-```{r}
-filename <- "Eastport_Assessor fy_2020_commitment_book.pdf"
-
-commitmentbook_2020_url <- "https://www.eastport-me.gov/sites/g/files/vyhlif536/f/pages/fy_2020_commitment_book.pdf"
-commitmentbook_2021_url <- "https://www.eastport-me.gov/sites/g/files/vyhlif536/f/uploads/fy21_real_estate_commitment_book_8-05-2020.pdf"
-commitmentbook_2021_url <- "https://www.eastport-me.gov/department-assessing/files/fy-2019-tax-commitment-book"
-
-```
-
 
 #### [Eastport Municipal Tax Rate](https://www.eastport-me.gov/department-assessing/pages/municipal-tax-rate)
 
@@ -50,7 +41,15 @@ INTEREST: 7.00% as of November 2, 2020 (rate set annually)
 
 #### [Eastport Tax Maps](https://www.eastport-me.gov/sites/g/files/vyhlif536/f/uploads/city_of_eastport_tax_maps_october_2016.pdf)
 
+#### Location of Assessment "Commitment Book" Files
 
+```{r}
+filename <- "Eastport_Assessor fy_2020_commitment_book.pdf"
+
+commitmentbook_2019_url <- "https://www.eastport-me.gov/department-assessing/files/fy-2019-tax-commitment-book"
+commitmentbook_2020_url <- "https://www.eastport-me.gov/sites/g/files/vyhlif536/f/pages/fy_2020_commitment_book.pdf"
+commitmentbook_2021_url <- "https://www.eastport-me.gov/sites/g/files/vyhlif536/f/uploads/fy21_real_estate_commitment_book_8-05-2020.pdf"
+```
 
 ```{r}
 file_downloaded = TRUE
@@ -63,13 +62,24 @@ if (!file_downloaded) {
 
 `pdf_text()` function, which returns a character vector of length equal to the number of pages in the file.
 
-#### Extract text from pdf in R
+#### Extract Text from pdf in R
 
 Extract the text from all pages.
 
 
 ```{r}
 pdf_text <- pdftools::pdf_text(filename)
+```
+
+
+The result is a character vector (vector of character strings),
+each page being one string.
+
+```{r}
+class(pdf_text)
+```
+
+```{r}
 str(pdf_text)
 ```
 
@@ -79,32 +89,23 @@ Display of first page
 cat(pdf_text[1])
 ```
 
-```
-
-Suppose if you want to display second page information then use below code,
-
-```{r}
-cat(pdf_text[[2]])
-```
-
 
 To extract a particular word from these pages, unlist the data and convert it into lower case letters
 
 ```{r}
-str(pdf_text)
+taxdata <- unlist(pdf_text) # does this do anything?
+# taxdata <- tolower(taxdata)
+class(taxdata)
 ```
 
-```{r}
-pdf_text <- unlist(pdf_text)
-pdf_text <- tolower(pdf_text)
-```
-
-Suppose if we want to extract the page number details for the word contains “Suspendisse“
+Extract the page number for pages containing a particular name.
 
 ```{r}
-res <- data.frame(str_detect(pdf_text, "suspendisse"))
-colnames(res) <- "Result"
-res <- subset(res, res$Result == TRUE)
+res <- data.frame(str_detect(taxdata, "leiby"))
+colnames(res) <- "NameFound"
+
+res <- subset(res, res$NameFound == TRUE)
+
 row.names(res)
 ```
 
@@ -117,12 +118,12 @@ Processing
         Eastport                       Real Estate Tax Commitment Book - 26.200                            08/06/2019
         12:20 PM                                     FY20 REAL ESTATE COMMITMENT                          Page      1
         "^Account Name & Address                        Land     Building    Exemption       Assessment            Tax"
+
 - Strip 3 lines from end of each page:
-    - (headings "^[ ]+Land           Building             Exempt         Total               Tax"
+    - headings "^[ ]+Land           Building             Exempt         Total               Tax"
     - "^Page Totals;"
     - "^Subtotals:" | "^Final Totals:"
 - Strip Final Totals from last page
-
 - Process page by page
 - Break each page into Assessment records
     - last 3-4 lines are Address, Lot number and record pages - date
@@ -140,8 +141,8 @@ Analysis
 #### Last Page
 
 ```{r}
-length(pdf_text)
-cat(pdf_text[length(pdf_text)])
+length(taxdata)
+cat(taxdata[length(taxdata)])
 ```
 
 - Note "Acres" and it value is usually on 2nd line of record, under "Land" column, but not if name is > certain length.
@@ -152,12 +153,12 @@ cat(pdf_text[length(pdf_text)])
 
 Example of a line starting with 
 ```{r}
-str_detect(pdf_text, "\n    1")
+str_detect(taxdata, "\n    1")
 ```
 
 #### Raw content of a page:
 
 ```{r}
-pdf_text[1]
+taxdata[1]
 ```
 
